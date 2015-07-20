@@ -17,7 +17,7 @@ namespace delphinpro\dumper;
 class Dumper
 {
 
-    const EXPAND = false;
+    const EXPAND = true;
 
     public static $ROOT = '';
 
@@ -58,7 +58,6 @@ class Dumper
     {
         static $index = 0;
 
-        $i = array_shift($trace);
         echo '<code style="color: #aaa;font-size: 0.85em;padding-left: 5px;">' . $trace[0]['file'] . ':' .
             $trace[0]['line'] .
             '</code>';
@@ -126,13 +125,16 @@ class Dumper
 
     public static function dumpTable(array $data)
     {
-        echo '<table border="1" style="font-size: 12px;width: 100%;border-collapse: collapse;border-spacing: 0;">';
+        $trace = debug_backtrace();
+        self::_renderStyles();
+        echo '<div class="df-dump df-dump-table-wrapper">';
+        echo '<table class="df-dump-table" border="1" style="font-size: 12px;width: 100%;border-collapse: collapse;border-spacing: 0;">';
         $first = true;
         foreach ($data as $row) {
             if ($first) {
                 echo '<tr>';
                 foreach ($row as $title => $col) {
-                    echo '<th>' . $title . '</th>';
+                    echo '<th>' . htmlspecialchars($title) . '</th>';
                 }
                 echo '</tr>';
                 $first = false;
@@ -140,14 +142,16 @@ class Dumper
             echo '<tr>';
             foreach ($row as $col) {
                 if (is_array($col) or is_object($col)) {
-                    echo '<td>' . json_encode($col) . '</td>';
+                    echo '<td>' . json_encode(htmlspecialchars($col)) . '</td>';
                 } else {
-                    echo '<td>' . $col . '</td>';
+                    echo '<td>' . htmlspecialchars($col) . '</td>';
                 }
             }
             echo '</tr>';
         }
         echo '</table>';
+        echo '<div class="df-stack-trace">'. (str_replace(Dumper::$ROOT, '', $trace[0]['file']) . ':' . $trace[0]['line']).'</div>';
+        echo '</div>';
     }
 
     private static function _render($template, $data = array())
@@ -159,7 +163,7 @@ class Dumper
 
     private static function _dump($source)
     {
-        $maxTextLength = 50;
+        $maxTextLength = 60;
         if (is_array($source)) {
             self::_dumpArray($source);
         } elseif (is_object($source)) {
@@ -167,9 +171,9 @@ class Dumper
         } elseif (is_string($source)) {
             if (mb_strlen($source, 'UTF-8') > $maxTextLength) {
                 $short = mb_strcut($source, 0, $maxTextLength, 'UTF-8');
-                echo "(string) <span style='color:blue' title='$source'>'$short...'</span>\n";
+                echo "(string) <span style='color:blue' title='$source'>'" . htmlspecialchars($short) . "...'</span>\n";
             } else {
-                echo "(string) <span style='color:blue'>'$source'</span>\n";
+                echo "(string) <span style='color:blue'>'" . htmlspecialchars($source) . "'</span>\n";
             }
         } elseif (is_int($source)) {
             echo "(int)    <span style='color:red'>$source</span>\n";
@@ -180,7 +184,7 @@ class Dumper
         } elseif (is_bool($source)) {
             echo $source ? "(bool)   <b>TRUE</b>\n" : "(bool)   <b>FALSE</b>\n";
         } else {
-            echo "(?)      <i>$source</i>\n";
+            echo "(?)      <i>" . htmlspecialchars($source) . "</i>\n";
         }
     }
 

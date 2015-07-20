@@ -25,6 +25,12 @@
         font-family: Consolas, Lucida Console, monospace;
     }
 
+    .df-dump-table-wrapper { padding: 0; border-radius: 0 0 5px 5px; }
+    .df-dump-table-wrapper .df-stack-trace { padding: 4px 8px; }
+    .df-dump-table { border: 1px solid #ccc; width: 100%; }
+    .df-dump-table td { border: 1px solid #ccc; padding: 4px 8px; background: #f9f9f9;}
+    .df-dump-table th { border: 1px solid #ccc; padding: 4px 8px; background: #777; color: #fff; }
+
     .df-dump b { color: black; }
 
     .df-cont { margin-left: 2em; }
